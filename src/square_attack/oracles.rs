@@ -40,7 +40,6 @@ impl Oracle for RootMeOracle<'_> {
             let plain = hex::encode(square_to_plain(ds));
             let request = format!("e {plain}\n");
             let mut response = [0u8; 33];
-            println!("Sending {request}");
             if let Err(err) = self.stream.write(request.as_bytes()) {
                 println!("Error when sending request: {err}");
                 process::exit(-1)
@@ -49,7 +48,6 @@ impl Oracle for RootMeOracle<'_> {
                 println!("Error when receiving response: {err}");
                 process::exit(-1)
             }
-            println!("Received {}", from_utf8(&response).unwrap());
             let encrypted_state =
                 plain_to_square(&hex::decode(&response[0..32]).unwrap().try_into().unwrap());
             *ds = encrypted_state;
@@ -61,9 +59,7 @@ impl RootMeOracle<'_> {
     pub fn setup(&mut self) {
         let mut buf = [0; 256];
         self.stream.read(&mut buf).unwrap();
-        print!("{}", from_utf8(&buf).expect("Invalid UTF8 sequence"));
         self.stream.read(&mut buf).unwrap();
-        print!("{}", from_utf8(&buf).expect("Invalid UTF8 sequence"));
     }
 
     pub fn check_key(&mut self, key: &Block) -> bool {
@@ -77,7 +73,7 @@ impl RootMeOracle<'_> {
             println!("Error when receiving response: {err}");
             process::exit(-1)
         }
-        println!("Received {}", from_utf8(&response).unwrap());
+        println!("{}", from_utf8(&response).unwrap());
         true
     }
 }
