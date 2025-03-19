@@ -1,5 +1,5 @@
-use rust::{benchmark, crack_root_me};
+use rust::{benchmark, crack_local};
 
 fn main() {
-    crack_root_me();
+    crack_local();
 }

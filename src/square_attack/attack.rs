@@ -1,9 +1,13 @@
-use super::connectors::encrypt_delta_set;
 use crate::aes::key_expansion::get_first_key;
 use crate::utils::types::{Block, State};
+use super::oracles::{LocalOracle, InvalidOracle};
 
 const SQUARE_ROUNDS: u8 = 4;
 pub type DeltaSet = [State; 0x100];
+
+pub trait Oracle {
+    fn encrypt(&mut self, delta_set: &mut DeltaSet) -> ();
+}
 
 const REVERSED_S_BOX: [u8; 0x100] = [
     82, 9, 106, 213, 48, 54, 165, 56, 191, 64, 163, 158, 129, 243, 215, 251, 124, 227, 57, 130,
@@ -21,23 +25,23 @@ const REVERSED_S_BOX: [u8; 0x100] = [
     214, 38, 225, 105, 20, 99, 85, 33, 12, 125,
 ];
 
-pub fn crack_key<F>(encrypt_ds: F) -> Option<Block>
+pub fn crack_key<E>(oracle: &mut E) -> Option<Block>
 where
-    F: Fn(&mut DeltaSet) -> (),
+    E: Oracle,
 {
-    match crack_last_key(encrypt_ds) {
+    match crack_last_key(oracle) {
         Some(last_key) => Some(get_first_key(&last_key, SQUARE_ROUNDS + 1)),
         None => None,
     }
 }
 
-fn crack_last_key<F>(encrypt_ds: F) -> Option<Block>
+fn crack_last_key<E>(oracle: &mut E) -> Option<Block>
 where
-    F: Fn(&mut DeltaSet) -> (),
+    E: Oracle,
 {
     let mut last_bytes: Block = [0; 16];
     println!("[+] Gathering encrypted delta sets...");
-    let encrypted_ds = gather_encrypted_delta_sets(encrypt_ds);
+    let encrypted_ds = gather_encrypted_delta_sets(oracle);
     for position in 0..0x10 {
         if let Some(i) = guess_position(&encrypted_ds, position) {
             last_bytes[position as usize] = i;
@@ -48,15 +52,15 @@ where
     Some(last_bytes)
 }
 
-fn gather_encrypted_delta_sets<F>(encrypt_ds: F) -> [DeltaSet; 0x10]
+fn gather_encrypted_delta_sets<E>(oracle: &mut E) -> [DeltaSet; 0x10]
 where
-    F: Fn(&mut DeltaSet) -> (),
+    E: Oracle,
 {
     let mut encrypted_delta_sets: [DeltaSet; 0x10] = [[[[0; 4]; 4]; 0x100]; 0x10];
     for i in 0..0x10 {
         println!("[ ] Encrypting delta set 0x{i:01x}...");
         let mut ds = get_delta_set(i as u8);
-        encrypt_ds(&mut ds);
+        oracle.encrypt(&mut ds);
         encrypted_delta_sets[i] = ds;
     }
     encrypted_delta_sets
@@ -112,9 +116,12 @@ fn get_delta_set(inactive_value: u8) -> DeltaSet {
 mod tests {
     use super::*;
 
+    const KEY: Block = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+
     #[test]
     fn test_crack_last_key() {
-        let last_key = crack_last_key(encrypt_delta_set);
+        let mut oracle = get_local_oracle();
+        let last_key = crack_last_key(&mut oracle);
         assert_eq!(
             last_key,
             Some([152, 165, 224, 217, 13, 5, 221, 42, 35, 58, 84, 156, 60, 49, 117, 181])
@@ -123,13 +130,14 @@ mod tests {
 
     #[test]
     fn test_crack_last_key_invalid() {
-        let last_key = crack_last_key(|_| {});
+        let last_key = crack_last_key(&mut InvalidOracle{});
         assert_eq!(last_key, None);
     }
 
     #[test]
     fn test_gather_encrypted_delta_sets() {
-        let mut encrypted_ds = gather_encrypted_delta_sets(encrypt_delta_set);
+        let mut oracle = get_local_oracle();
+        let encrypted_ds = gather_encrypted_delta_sets(&mut oracle);
         assert_eq!(
             encrypted_ds[0][0],
             [
@@ -143,10 +151,15 @@ mod tests {
 
     #[test]
     fn test_guess_position() {
-        let encrypted_ds = gather_encrypted_delta_sets(encrypt_delta_set);
+        let mut oracle = get_local_oracle();
+        let encrypted_ds = gather_encrypted_delta_sets(&mut oracle);
         assert_eq!(guess_position(&encrypted_ds, 0), Some(152));
     }
 
+    fn get_local_oracle() -> LocalOracle {
+        let key: Block = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+        LocalOracle{key}
+    }
     #[test]
     fn test_guess_position_not_found() {
         let encrypted_delta_sets: [DeltaSet; 0x10] = [[[[0; 4]; 4]; 0x100]; 0x10];
