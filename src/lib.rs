@@ -5,10 +5,9 @@ mod utils;
 use std::net::TcpStream;
 use std::process;
 use std::time::SystemTime;
-use crate::square_attack::attack::crack_key;
+use crate::square_attack::attack::{crack_key};
 use crate::utils::types::Block;
-use crate::square_attack::oracles;
-use crate::square_attack::oracles::LocalOracle;
+use crate::square_attack::oracles::{LocalOracle, RootMeOracle};
 
 /// Benchmark the aes::encrypt function
 ///
@@ -35,12 +34,16 @@ pub fn crack_local() {
     }
 }
 
-// pub fn crack_root_me() {
-//     let mut stream = TcpStream::connect(
-//         ("challenge01.root-me.org", 51039)
-//     ).unwrap_or_else(|error| {println!("ERROR: {}", error.to_string()); process::exit(-1)});
-//     match crack_key( |x| {connectors::root_me_encrypt_delta_sets(&mut stream, x)}) {
-//         Some(key) => println!("{}", hex::encode(key)),
-//         None => println!("[-] Could not find key"),
-//     }
-// }
+pub fn crack_root_me() {
+    let mut stream = TcpStream::connect(
+        ("challenge01.root-me.org", 51039)
+    ).unwrap_or_else(|error| {println!("ERROR: {}", error.to_string()); process::exit(-1)});
+    let mut oracle = RootMeOracle {stream: &mut stream};
+    oracle.setup();
+    let cracked_key = crack_key(&mut oracle).unwrap_or_else(|| {
+        println!("[-] Could not find key");
+        process::exit(-1);
+    });
+    println!("[+] Found key {}", hex::encode(cracked_key));
+    oracle.check_key(&cracked_key);
+}

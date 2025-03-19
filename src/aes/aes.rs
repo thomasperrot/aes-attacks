@@ -10,14 +10,14 @@ use crate::utils::types::{Block, ExpendedKey, State, Word};
 /// Encrypt a plain text block using the provided key.
 pub fn encrypt(plain_text: &Block, key: &Block) -> Block {
     let mut state = plain_to_square(plain_text);
-    transform_state(&mut state, key);
+    transform_state(&mut state, key, NB_ROUND);
     square_to_plain(&state)
 }
 
-pub fn transform_state(state: &mut State, key: &Block) {
+pub fn transform_state(state: &mut State, key: &Block, rounds: usize) {
     let expended_key = key_expansion(key);
     add_round_key(state, &key_for_round(expended_key, 0));
-    for i in 1..NB_ROUND {
+    for i in 1..rounds{
         sub_bytes(state);
         shift_rows(state);
         mix_columns(state);
@@ -25,7 +25,7 @@ pub fn transform_state(state: &mut State, key: &Block) {
     }
     sub_bytes(state);
     shift_rows(state);
-    add_round_key(state, &key_for_round(expended_key, NB_ROUND));
+    add_round_key(state, &key_for_round(expended_key, rounds));
 }
 
 fn key_for_round(expended_key: ExpendedKey, round: usize) -> [Word; 4] {
@@ -46,7 +46,7 @@ mod tests {
         let key = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
         let mut state: State = [[0, 1, 2, 3], [4, 5, 6, 7], [8, 9, 10, 11], [12, 13, 14, 15]];
 
-        transform_state(&mut state, &key);
+        transform_state(&mut state, &key, NB_ROUND);
 
         assert_eq!(
             state,

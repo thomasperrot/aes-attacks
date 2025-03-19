@@ -1,5 +1,5 @@
-use rust::{benchmark, crack_local};
+use aes_attacks::{crack_root_me};
 
 fn main() {
-    crack_local();
+    crack_root_me();
 }

@@ -1,13 +1,9 @@
 use crate::aes::key_expansion::get_first_key;
+use super::oracles::Oracle;
 use crate::utils::types::{Block, State};
-use super::oracles::{LocalOracle, InvalidOracle};
 
 const SQUARE_ROUNDS: u8 = 4;
 pub type DeltaSet = [State; 0x100];
-
-pub trait Oracle {
-    fn encrypt(&mut self, delta_set: &mut DeltaSet) -> ();
-}
 
 const REVERSED_S_BOX: [u8; 0x100] = [
     82, 9, 106, 213, 48, 54, 165, 56, 191, 64, 163, 158, 129, 243, 215, 251, 124, 227, 57, 130,
@@ -115,8 +111,17 @@ fn get_delta_set(inactive_value: u8) -> DeltaSet {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use super::super::oracles::{InvalidOracle, LocalOracle};
 
-    const KEY: Block = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
+    #[test]
+    fn test_crack_key() {
+        let mut oracle = get_local_oracle();
+        let last_key = crack_key(&mut oracle);
+        assert_eq!(
+            last_key,
+            Some([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15])
+        );
+    }
 
     #[test]
     fn test_crack_last_key() {
@@ -124,13 +129,13 @@ mod tests {
         let last_key = crack_last_key(&mut oracle);
         assert_eq!(
             last_key,
-            Some([152, 165, 224, 217, 13, 5, 221, 42, 35, 58, 84, 156, 60, 49, 117, 181])
+            Some([71, 247, 247, 188, 149, 53, 62, 3, 249, 108, 50, 188, 253, 5, 141, 253])
         );
     }
 
     #[test]
     fn test_crack_last_key_invalid() {
-        let last_key = crack_last_key(&mut InvalidOracle{});
+        let last_key = crack_last_key(&mut InvalidOracle {});
         assert_eq!(last_key, None);
     }
 
@@ -141,10 +146,10 @@ mod tests {
         assert_eq!(
             encrypted_ds[0][0],
             [
-                [198, 135, 111, 161],
-                [161, 143, 79, 200],
-                [59, 91, 129, 216],
-                [55, 130, 98, 121]
+                [29, 108, 107, 66],
+                [209, 167, 117, 4],
+                [71, 227, 134, 6],
+                [212, 172, 50, 101]
             ]
         );
     }
@@ -153,12 +158,12 @@ mod tests {
     fn test_guess_position() {
         let mut oracle = get_local_oracle();
         let encrypted_ds = gather_encrypted_delta_sets(&mut oracle);
-        assert_eq!(guess_position(&encrypted_ds, 0), Some(152));
+        assert_eq!(guess_position(&encrypted_ds, 0), Some(71));
     }
 
     fn get_local_oracle() -> LocalOracle {
         let key: Block = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15];
-        LocalOracle{key}
+        LocalOracle { key }
     }
     #[test]
     fn test_guess_position_not_found() {
