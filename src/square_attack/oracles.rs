@@ -1,4 +1,4 @@
-use super::attack::{DeltaSet};
+use super::attack::DeltaSet;
 use crate::aes::transform_state;
 use crate::utils::transform::{plain_to_square, square_to_plain};
 use crate::utils::types::Block;

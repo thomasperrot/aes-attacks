@@ -17,7 +17,7 @@ pub fn encrypt(plain_text: &Block, key: &Block) -> Block {
 pub fn transform_state(state: &mut State, key: &Block, rounds: usize) {
     let expended_key = key_expansion(key);
     add_round_key(state, &key_for_round(expended_key, 0));
-    for i in 1..rounds{
+    for i in 1..rounds {
         sub_bytes(state);
         shift_rows(state);
         mix_columns(state);
@@ -66,6 +66,9 @@ mod tests {
 
         let ciphertext = encrypt(&plain_text, &key);
 
-        assert_eq!(ciphertext, [10, 148, 11, 181, 65, 110, 240, 69, 241, 195, 148, 88, 198, 83, 234, 90]);
+        assert_eq!(
+            ciphertext,
+            [10, 148, 11, 181, 65, 110, 240, 69, 241, 195, 148, 88, 198, 83, 234, 90]
+        );
     }
 }

@@ -1,5 +1,5 @@
-use crate::aes::key_expansion::get_first_key;
 use super::oracles::Oracle;
+use crate::aes::key_expansion::get_first_key;
 use crate::utils::types::{Block, State};
 
 const SQUARE_ROUNDS: u8 = 4;
@@ -110,8 +110,8 @@ fn get_delta_set(inactive_value: u8) -> DeltaSet {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::oracles::{InvalidOracle, LocalOracle};
+    use super::*;
 
     #[test]
     fn test_crack_key() {
