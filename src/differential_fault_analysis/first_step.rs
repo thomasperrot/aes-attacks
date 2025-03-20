@@ -2,10 +2,7 @@ use crate::utils::constants::REVERSED_S_BOX;
 use crate::utils::multiply::{MULTIPLICATION_BY_2, MULTIPLICATION_BY_3};
 use crate::utils::types::State;
 
-pub fn get_all_possible_keys<'a>(
-    normal_state: &State,
-    faulty_state: &State,
-) -> Vec<[&'a Vec<u8>; 0x10]> {
+pub fn get_all_possible_keys(normal_state: &State, faulty_state: &State) -> Vec<[Vec<u8>; 0x10]> {
     let d1_equations = compute_first_column(normal_state, faulty_state);
     let d2_equations = compute_second_column(normal_state, faulty_state);
     let d3_equations = compute_third_column(normal_state, faulty_state);
@@ -24,12 +21,12 @@ pub fn get_all_possible_keys<'a>(
 }
 
 #[rustfmt::skip]
-fn get_equation<'a>(eq_1: &'a[Vec<u8>; 4], eq_2: &'a[Vec<u8>; 4], eq_3: &'a[Vec<u8>; 4], eq_4: &'a[Vec<u8>; 4]) -> [&'a Vec<u8>; 0x10] {
+fn get_equation(eq_1: &[Vec<u8>; 4], eq_2: &[Vec<u8>; 4], eq_3: &[Vec<u8>; 4], eq_4: &[Vec<u8>; 4]) -> [Vec<u8>; 0x10] {
     [
-        &eq_1[0], &eq_2[1], &eq_3[2], &eq_4[3],
-        &eq_2[0], &eq_3[1], &eq_4[2], &eq_1[3],
-        &eq_3[0], &eq_4[1], &eq_1[2], &eq_2[3],
-        &eq_4[0], &eq_1[1], &eq_2[2], &eq_3[3],
+        eq_1[0].clone(), eq_2[1].clone(), eq_3[2].clone(), eq_4[3].clone(),
+        eq_2[0].clone(), eq_3[1].clone(), eq_4[2].clone(), eq_1[3].clone(),
+        eq_3[0].clone(), eq_4[1].clone(), eq_1[2].clone(), eq_2[3].clone(),
+        eq_4[0].clone(), eq_1[1].clone(), eq_2[2].clone(), eq_3[3].clone(),
     ]
 }
 
@@ -259,35 +256,66 @@ fn compute_fourth_column(normal_state: &State, faulty_state: &State) -> Vec<[Vec
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::utils::types::Block;
+
+    const KEY: Block = [
+        162, 79, 213, 133, 38, 231, 209, 187, 72, 60, 127, 50, 147, 178, 71, 65,
+    ];
+    const NORMAL_STATE: State = [
+        [129, 189, 114, 129],
+        [214, 22, 185, 139],
+        [205, 251, 187, 91],
+        [195, 141, 136, 233],
+    ];
+    const FAULTY_STATE: State = [
+        [239, 99, 211, 112],
+        [249, 1, 73, 230],
+        [53, 135, 78, 136],
+        [8, 184, 139, 126],
+    ];
 
     #[test]
     fn test_compute_first_column() {
-        let last_key = [
-            162, 79, 213, 133, 38, 231, 209, 187, 72, 60, 127, 50, 147, 178, 71, 65,
-        ];
-        let normal_state = [
-            [129, 189, 114, 129],
-            [214, 22, 185, 139],
-            [205, 251, 187, 91],
-            [195, 141, 136, 233],
-        ];
-        let faulty_state = [
-            [239, 99, 211, 112],
-            [249, 1, 73, 230],
-            [53, 135, 78, 136],
-            [8, 184, 139, 126],
-        ];
-        let equations = compute_first_column(&normal_state, &faulty_state);
-        let mut found = false;
-        for eq in equations {
-            if eq[0].contains(&last_key[0])
-                && eq[1].contains(&last_key[7])
-                && eq[2].contains(&last_key[10])
-                && eq[3].contains(&last_key[13])
-            {
-                found = true;
-            }
-        }
+        let equations = compute_first_column(&NORMAL_STATE, &FAULTY_STATE);
+        let found = equations.iter().any(|eq| {
+            eq[0].contains(&KEY[0])
+                && eq[1].contains(&KEY[13])
+                && eq[2].contains(&KEY[10])
+                && eq[3].contains(&KEY[7])
+        });
+        assert_eq!(found, true);
+    }
+    #[test]
+    fn test_compute_second_column() {
+        let equations = compute_second_column(&NORMAL_STATE, &FAULTY_STATE);
+        let found = equations.iter().any(|eq| {
+            eq[0].contains(&KEY[4])
+                && eq[1].contains(&KEY[1])
+                && eq[2].contains(&KEY[14])
+                && eq[3].contains(&KEY[11])
+        });
+        assert_eq!(found, true);
+    }
+    #[test]
+    fn test_compute_third_column() {
+        let equations = compute_third_column(&NORMAL_STATE, &FAULTY_STATE);
+        let found = equations.iter().any(|eq| {
+            eq[0].contains(&KEY[8])
+                && eq[1].contains(&KEY[5])
+                && eq[2].contains(&KEY[2])
+                && eq[3].contains(&KEY[15])
+        });
+        assert_eq!(found, true);
+    }
+    #[test]
+    fn test_compute_fourth_column() {
+        let equations = compute_fourth_column(&NORMAL_STATE, &FAULTY_STATE);
+        let found = equations.iter().any(|eq| {
+            eq[0].contains(&KEY[12])
+                && eq[1].contains(&KEY[9])
+                && eq[2].contains(&KEY[6])
+                && eq[3].contains(&KEY[3])
+        });
         assert_eq!(found, true);
     }
 }
