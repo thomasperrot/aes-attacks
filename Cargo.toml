@@ -5,4 +5,3 @@ edition = "2021"
 
 [dependencies]
 hex = "0.4.3"
-arr_macro = "0.2.1"

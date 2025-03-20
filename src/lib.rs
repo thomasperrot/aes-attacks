@@ -1,7 +1,7 @@
 mod aes;
+mod differential_fault_analysis;
 mod square_attack;
 mod utils;
-mod differential_fault_analysis;
 
 use crate::square_attack::attack::crack_key;
 use crate::square_attack::oracles::{LocalOracle, RootMeOracle};

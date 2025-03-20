@@ -6,7 +6,6 @@ use crate::utils::types::{Block, State};
 const SQUARE_ROUNDS: u8 = 4;
 pub type DeltaSet = [State; 0x100];
 
-
 pub fn crack_key<E>(oracle: &mut E) -> Option<Block>
 where
     E: Oracle,
