@@ -1,5 +1,4 @@
-use super::sub_bytes::S_BOX;
-use crate::utils::constants::{EXPANDED_SIZE, NB_ROUND};
+use crate::utils::constants::{EXPANDED_SIZE, NB_ROUND, S_BOX};
 use crate::utils::types::{Block, ExpendedKey, Word};
 
 const LOOKUP_TABLE: [u8; 0x100] = [
