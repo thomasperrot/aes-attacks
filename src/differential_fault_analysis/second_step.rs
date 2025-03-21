@@ -6,11 +6,14 @@ use crate::utils::multiply::{
 };
 use crate::utils::types::{Block, State};
 
-fn reduce_key_space(normal_state: &State, faulty_state: &State, equations: &Vec<Equation>) {}
-fn get_valid_keys(normal_state: &State, faulty_state: &State, equation: &Equation) -> Vec<Block> {
-    get_keys(equation)
+fn reduce_key_space(
+    normal_state: &State,
+    faulty_state: &State,
+    equations: &Vec<Equation>,
+) -> Vec<Block> {
+    equations
         .iter()
-        .clone()
+        .flat_map(get_keys)
         .filter(|key| is_valid_guess(normal_state, faulty_state, key))
         .collect()
 }
@@ -33,26 +36,12 @@ fn get_keys(equation: &Equation) -> Vec<Block> {
                                                         for v13 in equation[13].iter() {
                                                             for v14 in equation[14].iter() {
                                                                 for v15 in equation[15].iter() {
-                                                                    keys.push(
-                                                                        [
-                                                                            v0.clone(),
-                                                                            v1.clone(),
-                                                                            v2.clone(),
-                                                                            v3.clone(),
-                                                                            v4.clone(),
-                                                                            v5.clone(),
-                                                                            v6.clone(),
-                                                                            v7.clone(),
-                                                                            v8.clone(),
-                                                                            v9.clone(),
-                                                                            v10.clone(),
-                                                                            v11.clone(),
-                                                                            v12.clone(),
-                                                                            v13.clone(),
-                                                                            v14.clone(),
-                                                                            v15.clone(),
-                                                                        ]
-                                                                    );
+                                                                    keys.push([
+                                                                        *v0, *v1, *v2, *v3, *v4,
+                                                                        *v5, *v6, *v7, *v8, *v9,
+                                                                        *v10, *v11, *v12, *v13,
+                                                                        *v14, *v15,
+                                                                    ]);
                                                                 }
                                                             }
                                                         }
@@ -75,8 +64,10 @@ fn get_keys(equation: &Equation) -> Vec<Block> {
 fn is_valid_guess(normal_state: &State, faulty_state: &State, key: &Block) -> bool {
     let fault = compute_second_step_2(normal_state, faulty_state, key);
     compute_second_step_3(normal_state, faulty_state, key) == fault
-        && compute_second_step_1(normal_state, faulty_state, key) == MULTIPLICATION_BY_2[fault as usize]
-        && compute_second_step_4(normal_state, faulty_state, key) == MULTIPLICATION_BY_3[fault as usize]
+        && compute_second_step_1(normal_state, faulty_state, key)
+            == MULTIPLICATION_BY_2[fault as usize]
+        && compute_second_step_4(normal_state, faulty_state, key)
+            == MULTIPLICATION_BY_3[fault as usize]
 }
 
 fn compute_second_step_1(normal_state: &State, faulty_state: &State, key: &Block) -> u8 {
@@ -203,11 +194,37 @@ fn compute_second_step_4_for_state(state: &State, key: &Block) -> u8 {
 mod tests {
     use super::*;
 
+    const KEY: Block = [
+        162, 79, 213, 133, 38, 231, 209, 187, 72, 60, 127, 50, 147, 178, 71, 65,
+    ];
+    const NORMAL_STATE: State = [
+        [129, 189, 114, 129],
+        [214, 22, 185, 139],
+        [205, 251, 187, 91],
+        [195, 141, 136, 233],
+    ];
+    const FAULTY_STATE: State = [
+        [239, 99, 211, 112],
+        [249, 1, 73, 230],
+        [53, 135, 78, 136],
+        [8, 184, 139, 126],
+    ];
+    #[test]
+    fn test_is_valid_guess() {
+        assert_eq!(is_valid_guess(&NORMAL_STATE, &FAULTY_STATE, &KEY), true);
+    }
+
+    #[test]
+    fn test_is_valid_guess_invalid() {
+        let key = [0; 16];
+        assert_eq!(is_valid_guess(&NORMAL_STATE, &FAULTY_STATE, &key), false);
+    }
+
     #[test]
     fn test_get_keys() {
         let equation: Equation = [
             Vec::from([0, 1]),
-            Vec::from([0]),
+            Vec::from([2, 3]),
             Vec::from([0]),
             Vec::from([0]),
             Vec::from([0]),
@@ -223,6 +240,14 @@ mod tests {
             Vec::from([0]),
             Vec::from([0]),
         ];
-        assert_eq!(get_keys(&equation), Vec::new());
+        assert_eq!(
+            get_keys(&equation),
+            Vec::<Block>::from([
+                [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ])
+        );
     }
 }
