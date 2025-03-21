@@ -2,7 +2,9 @@ use crate::utils::constants::REVERSED_S_BOX;
 use crate::utils::multiply::{MULTIPLICATION_BY_2, MULTIPLICATION_BY_3};
 use crate::utils::types::State;
 
-pub fn get_all_possible_keys(normal_state: &State, faulty_state: &State) -> Vec<[Vec<u8>; 0x10]> {
+pub type Equation = [Vec<u8>; 0x10];
+
+pub fn get_all_possible_keys(normal_state: &State, faulty_state: &State) -> Vec<Equation> {
     let d1_equations = compute_first_column(normal_state, faulty_state);
     let d2_equations = compute_second_column(normal_state, faulty_state);
     let d3_equations = compute_third_column(normal_state, faulty_state);
@@ -21,7 +23,7 @@ pub fn get_all_possible_keys(normal_state: &State, faulty_state: &State) -> Vec<
 }
 
 #[rustfmt::skip]
-fn get_equation(eq_1: &[Vec<u8>; 4], eq_2: &[Vec<u8>; 4], eq_3: &[Vec<u8>; 4], eq_4: &[Vec<u8>; 4]) -> [Vec<u8>; 0x10] {
+fn get_equation(eq_1: &[Vec<u8>; 4], eq_2: &[Vec<u8>; 4], eq_3: &[Vec<u8>; 4], eq_4: &[Vec<u8>; 4]) -> Equation {
     [
         eq_1[0].clone(), eq_2[1].clone(), eq_3[2].clone(), eq_4[3].clone(),
         eq_2[0].clone(), eq_3[1].clone(), eq_4[2].clone(), eq_1[3].clone(),
