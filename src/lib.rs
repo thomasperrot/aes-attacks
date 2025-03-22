@@ -4,11 +4,9 @@ mod square_attack;
 mod utils;
 
 use crate::square_attack::attack::crack_key;
-use crate::square_attack::oracles::{LocalOracle, RootMeOracle};
+use crate::square_attack::oracles::LocalOracle;
 use crate::utils::types::Block;
 pub use differential_fault_analysis::attack as dfa_attack;
-use std::net::TcpStream;
-use std::process;
 use std::time::SystemTime;
 
 /// Benchmark the aes::encrypt function
@@ -36,23 +34,6 @@ pub fn crack_local() {
     }
 }
 
-pub fn crack_root_me() {
-    let mut stream =
-        TcpStream::connect(("challenge01.root-me.org", 51039)).unwrap_or_else(|error| {
-            println!("ERROR: {}", error.to_string());
-            process::exit(-1)
-        });
-    let mut oracle = RootMeOracle {
-        stream: &mut stream,
-    };
-    oracle.setup();
-    let cracked_key = crack_key(&mut oracle).unwrap_or_else(|| {
-        println!("[-] Could not find key");
-        process::exit(-1);
-    });
-    println!("[+] Found key {}", hex::encode(cracked_key));
-    oracle.check_key(&cracked_key);
-}
 
 pub fn test_dfa_attack() {
     let normal_cipher_text = [
