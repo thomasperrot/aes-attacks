@@ -252,4 +252,30 @@ mod tests {
             ])
         );
     }
+
+    #[test]
+    fn test_reduce_key_space() {
+        let equation: Equation = [
+            Vec::from([0, 162]),
+            Vec::from([0, 79]),
+            Vec::from([213]),
+            Vec::from([133]),
+            Vec::from([38]),
+            Vec::from([231]),
+            Vec::from([209]),
+            Vec::from([187]),
+            Vec::from([72]),
+            Vec::from([60]),
+            Vec::from([127]),
+            Vec::from([50]),
+            Vec::from([147]),
+            Vec::from([178]),
+            Vec::from([71]),
+            Vec::from([65]),
+        ];
+        assert_eq!(
+            reduce_key_space(&NORMAL_STATE, &FAULTY_STATE, &Vec::from([equation])),
+            Vec::<Block>::from([[65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65]])
+        );
+    }
 }
