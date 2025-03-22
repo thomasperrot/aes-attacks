@@ -7,12 +7,8 @@ use crate::utils::types::Block;
 pub fn attack(normal_cipher_text: &Block, faulty_cipher_text: &Block) -> Vec<Block> {
     let normal_state = plain_to_square(&normal_cipher_text);
     let faulty_state = plain_to_square(&faulty_cipher_text);
-    println!("[ ] Computing all possible keys...");
     let equations = get_all_equations(&normal_state, &faulty_state);
-    println!("[ ] Reducing key space...");
-    let keys = reduce_key_space(&normal_state, &faulty_state, &equations);
-    println!("[+] Finished !");
-    keys
+    reduce_key_space(&normal_state, &faulty_state, &equations)
 }
 
 #[cfg(test)]
