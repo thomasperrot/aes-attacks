@@ -6,6 +6,7 @@ mod utils;
 use crate::square_attack::attack::crack_key;
 use crate::square_attack::oracles::{LocalOracle, RootMeOracle};
 use crate::utils::types::Block;
+use differential_fault_analysis::attack;
 use std::net::TcpStream;
 use std::process;
 use std::time::SystemTime;
@@ -51,4 +52,19 @@ pub fn crack_root_me() {
     });
     println!("[+] Found key {}", hex::encode(cracked_key));
     oracle.check_key(&cracked_key);
+}
+
+pub fn test_dfa_attack() {
+    let normal_cipher_text = [
+        129, 214, 205, 195, 189, 22, 251, 141, 114, 185, 187, 136, 129, 139, 91, 233,
+    ];
+    let faulty_cipher_text = [
+        239, 249, 53, 8, 99, 1, 135, 184, 211, 73, 78, 139, 112, 230, 136, 126,
+    ];
+    let t_0 = SystemTime::now();
+    let keys = attack(&normal_cipher_text, &faulty_cipher_text);
+    for key in keys.iter() {
+        println!("{key:x?}");
+    }
+    println!("Took {}s", t_0.elapsed().unwrap().as_secs())
 }

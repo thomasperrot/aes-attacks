@@ -6,6 +6,7 @@ use crate::utils::types::{Block, State};
 const SQUARE_ROUNDS: u8 = 4;
 pub type DeltaSet = [State; 0x100];
 
+/// Crack an AES key using the 4-square attack
 pub fn crack_key<E>(oracle: &mut E) -> Option<Block>
 where
     E: Oracle,

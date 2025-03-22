@@ -4,7 +4,7 @@ use crate::utils::types::State;
 
 pub type Equation = [Vec<u8>; 0x10];
 
-pub fn get_all_possible_keys(normal_state: &State, faulty_state: &State) -> Vec<Equation> {
+pub fn get_all_equations(normal_state: &State, faulty_state: &State) -> Vec<Equation> {
     let d1_equations = compute_first_column(normal_state, faulty_state);
     let d2_equations = compute_second_column(normal_state, faulty_state);
     let d3_equations = compute_third_column(normal_state, faulty_state);

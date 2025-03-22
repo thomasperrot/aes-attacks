@@ -1,12 +1,13 @@
+use crate::aes::key_expansion::get_first_key;
 use crate::differential_fault_analysis::first_step::Equation;
-use crate::utils::constants::{LOOKUP_TABLE, REVERSED_S_BOX, S_BOX};
+use crate::utils::constants::{LOOKUP_TABLE, NB_ROUND, REVERSED_S_BOX, S_BOX};
 use crate::utils::multiply::{
     MULTIPLICATION_BY_11, MULTIPLICATION_BY_13, MULTIPLICATION_BY_14, MULTIPLICATION_BY_2,
     MULTIPLICATION_BY_3, MULTIPLICATION_BY_9,
 };
 use crate::utils::types::{Block, State};
 
-fn reduce_key_space(
+pub fn reduce_key_space(
     normal_state: &State,
     faulty_state: &State,
     equations: &Vec<Equation>,
@@ -15,6 +16,7 @@ fn reduce_key_space(
         .iter()
         .flat_map(get_keys)
         .filter(|key| is_valid_guess(normal_state, faulty_state, key))
+        .map(|key| get_first_key(&key, (NB_ROUND + 1) as u8))
         .collect()
 }
 
