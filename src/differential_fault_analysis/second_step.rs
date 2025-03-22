@@ -6,7 +6,6 @@ use crate::utils::multiply::{
     MULTIPLICATION_BY_3, MULTIPLICATION_BY_9,
 };
 use crate::utils::types::{Block, State};
-use itertools::Itertools;
 
 pub fn reduce_key_space(
     normal_state: &State,
@@ -15,17 +14,53 @@ pub fn reduce_key_space(
 ) -> Vec<Block> {
     equations
         .iter()
-        .flatten()
-        .multi_cartesian_product()
-        .map(|x| {
-            [
-                *x[0], *x[1], *x[2], *x[3], *x[4], *x[5], *x[6], *x[7], *x[8], *x[9], *x[10],
-                *x[11], *x[12], *x[13], *x[14], *x[15],
-            ]
-        })
+        .flat_map(get_keys)
         .filter(|key| is_valid_guess(normal_state, faulty_state, key))
         .map(|key| get_first_key(&key, (NB_ROUND + 1) as u8))
         .collect()
+}
+
+fn get_keys(equation: &Equation) -> Vec<Block> {
+    let mut keys = Vec::new();
+    for v0 in equation[0].iter() {
+        for v1 in equation[1].iter() {
+            for v2 in equation[2].iter() {
+                for v3 in equation[3].iter() {
+                    for v4 in equation[4].iter() {
+                        for v5 in equation[5].iter() {
+                            for v6 in equation[6].iter() {
+                                for v7 in equation[7].iter() {
+                                    for v8 in equation[8].iter() {
+                                        for v9 in equation[9].iter() {
+                                            for v10 in equation[10].iter() {
+                                                for v11 in equation[11].iter() {
+                                                    for v12 in equation[12].iter() {
+                                                        for v13 in equation[13].iter() {
+                                                            for v14 in equation[14].iter() {
+                                                                for v15 in equation[15].iter() {
+                                                                    keys.push([
+                                                                        *v0, *v1, *v2, *v3, *v4,
+                                                                        *v5, *v6, *v7, *v8, *v9,
+                                                                        *v10, *v11, *v12, *v13,
+                                                                        *v14, *v15,
+                                                                    ]);
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    keys
 }
 
 fn is_valid_guess(normal_state: &State, faulty_state: &State, key: &Block) -> bool {
@@ -188,28 +223,33 @@ mod tests {
     }
 
     #[test]
-    fn test_reduce_key_space() {
+    fn test_get_keys() {
         let equation: Equation = [
-            Vec::from([0, 162]),
-            Vec::from([0, 79]),
-            Vec::from([213]),
-            Vec::from([133]),
-            Vec::from([38]),
-            Vec::from([231]),
-            Vec::from([209]),
-            Vec::from([187]),
-            Vec::from([72]),
-            Vec::from([60]),
-            Vec::from([127]),
-            Vec::from([50]),
-            Vec::from([147]),
-            Vec::from([178]),
-            Vec::from([71]),
-            Vec::from([65]),
+            Vec::from([0, 1]),
+            Vec::from([2, 3]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
+            Vec::from([0]),
         ];
         assert_eq!(
-            reduce_key_space(&NORMAL_STATE, &FAULTY_STATE, &Vec::from([equation])),
-            Vec::<Block>::from([[65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65]])
+            get_keys(&equation),
+            Vec::<Block>::from([
+                [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [0, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+                [1, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            ])
         );
     }
 }
