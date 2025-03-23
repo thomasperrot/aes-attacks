@@ -34,7 +34,6 @@ pub fn crack_local() {
     }
 }
 
-
 pub fn test_dfa_attack() {
     let normal_cipher_text = [
         129, 214, 205, 195, 189, 22, 251, 141, 114, 185, 187, 136, 129, 139, 91, 233,
@@ -43,7 +42,7 @@ pub fn test_dfa_attack() {
         239, 249, 53, 8, 99, 1, 135, 184, 211, 73, 78, 139, 112, 230, 136, 126,
     ];
     let t_0 = SystemTime::now();
-    let keys = dfa_attack(&normal_cipher_text, &faulty_cipher_text, 5);
+    let keys = dfa_attack(&normal_cipher_text, &faulty_cipher_text, 5, 1, 0);
     for key in keys {
         println!("{}", hex::encode(key));
     }

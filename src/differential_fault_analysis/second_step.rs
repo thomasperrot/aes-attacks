@@ -6,14 +6,14 @@ use crate::utils::multiply::{
     MULTIPLICATION_BY_3, MULTIPLICATION_BY_9,
 };
 use crate::utils::types::{Block, State};
-use tqdm::tqdm;
 
 pub fn reduce_key_space(
     normal_state: &State,
     faulty_state: &State,
     equations: &Vec<Equation>,
 ) -> Vec<Block> {
-    tqdm(equations)
+    equations
+        .iter()
         .flat_map(get_keys)
         .filter(|key| is_valid_guess(normal_state, faulty_state, key))
         .map(|key| get_first_key(&key, (NB_ROUND + 1) as u8))

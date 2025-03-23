@@ -2,7 +2,7 @@ use crate::differential_fault_analysis::first_step::get_all_equations;
 use crate::differential_fault_analysis::second_step::reduce_key_space;
 use crate::utils::transform::plain_to_square;
 use crate::utils::types::Block;
-use clap::builder::TypedValueParser;
+use std::cmp::min;
 use std::thread;
 use std::thread::JoinHandle;
 
@@ -11,15 +11,21 @@ pub fn attack(
     normal_cipher_text: &Block,
     faulty_cipher_text: &Block,
     nb_threads: u8,
+    nb_processes: u8,
+    current_process: u8,
 ) -> Vec<Block> {
     let normal_state = plain_to_square(&normal_cipher_text);
     let faulty_state = plain_to_square(&faulty_cipher_text);
     let equations = get_all_equations(&normal_state, &faulty_state);
 
+    let chunk_size = (equations.len() as f32 / nb_processes as f32).ceil() as usize;
+    let equations = &equations[(chunk_size * current_process as usize)
+        ..min(chunk_size * (current_process as usize + 1), equations.len())];
+
     let mut threads: Vec<JoinHandle<Vec<Block>>> = Vec::new();
     let chunk_size = (equations.len() as f32 / nb_threads as f32).ceil();
     for eq in equations.chunks(chunk_size as usize) {
-        let cloned_equations = Vec::from(eq.clone());
+        let cloned_equations = Vec::from(eq);
         let reduce_thread = thread::spawn(move || {
             reduce_key_space(&normal_state, &faulty_state, &cloned_equations)
         });
@@ -50,7 +56,7 @@ mod tests {
         let expected_key = [
             65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65, 65,
         ];
-        let keys = attack(&normal_cipher_text, &faulty_cipher_text, 5);
+        let keys = attack(&normal_cipher_text, &faulty_cipher_text, 5, 1, 0);
         assert_eq!(keys.contains(&expected_key), true);
     }
 }
