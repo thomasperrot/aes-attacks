@@ -11,7 +11,7 @@ fn main() {
     let normal_cipher_text = hex::decode(&args.normal_cipher_text).unwrap().try_into().unwrap();
     let faulty_cipher_text = hex::decode(&args.faulty_cipher_text).unwrap().try_into().unwrap();
     let keys = dfa_attack(&normal_cipher_text, &faulty_cipher_text);
-    for key in keys.iter() {
+    for key in keys {
         println!("{}", hex::encode(key));
     }
 }

@@ -22,22 +22,22 @@ pub fn reduce_key_space(
 
 fn get_keys(equation: &Equation) -> Vec<Block> {
     let mut keys = Vec::new();
-    for v0 in equation[0].iter() {
-        for v1 in equation[1].iter() {
-            for v2 in equation[2].iter() {
-                for v3 in equation[3].iter() {
-                    for v4 in equation[4].iter() {
-                        for v5 in equation[5].iter() {
-                            for v6 in equation[6].iter() {
-                                for v7 in equation[7].iter() {
-                                    for v8 in equation[8].iter() {
-                                        for v9 in equation[9].iter() {
-                                            for v10 in equation[10].iter() {
-                                                for v11 in equation[11].iter() {
-                                                    for v12 in equation[12].iter() {
-                                                        for v13 in equation[13].iter() {
-                                                            for v14 in equation[14].iter() {
-                                                                for v15 in equation[15].iter() {
+    for v0 in &equation[0] {
+        for v1 in &equation[1] {
+            for v2 in &equation[2] {
+                for v3 in &equation[3] {
+                    for v4 in &equation[4] {
+                        for v5 in &equation[5] {
+                            for v6 in &equation[6] {
+                                for v7 in &equation[7] {
+                                    for v8 in &equation[8] {
+                                        for v9 in &equation[9] {
+                                            for v10 in &equation[10] {
+                                                for v11 in &equation[11] {
+                                                    for v12 in &equation[12] {
+                                                        for v13 in &equation[13] {
+                                                            for v14 in &equation[14] {
+                                                                for v15 in &equation[15] {
                                                                     keys.push([
                                                                         *v0, *v1, *v2, *v3, *v4,
                                                                         *v5, *v6, *v7, *v8, *v9,

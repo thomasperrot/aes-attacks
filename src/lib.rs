@@ -44,7 +44,7 @@ pub fn test_dfa_attack() {
     ];
     let t_0 = SystemTime::now();
     let keys = dfa_attack(&normal_cipher_text, &faulty_cipher_text);
-    for key in keys.iter() {
+    for key in keys {
         println!("{}", hex::encode(key));
     }
     println!("Took {}s", t_0.elapsed().unwrap().as_secs())

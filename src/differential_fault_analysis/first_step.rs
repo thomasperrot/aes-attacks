@@ -10,10 +10,10 @@ pub fn get_all_equations(normal_state: &State, faulty_state: &State) -> Vec<Equa
     let d3_equations = compute_third_column(normal_state, faulty_state);
     let d4_equations = compute_fourth_column(normal_state, faulty_state);
     let mut equations = Vec::new();
-    for eq_1 in d1_equations.iter() {
-        for eq_2 in d2_equations.iter() {
-            for eq_3 in d3_equations.iter() {
-                for eq_4 in d4_equations.iter() {
+    for eq_1 in &d1_equations {
+        for eq_2 in &d2_equations {
+            for eq_3 in &d3_equations {
+                for eq_4 in &d4_equations {
                     equations.push(get_equation(eq_1, eq_2, eq_3, eq_4));
                 }
             }
