@@ -1,7 +1,6 @@
 use super::attack::DeltaSet;
 use crate::aes::transform_state;
 use crate::utils::types::Block;
-use hex;
 
 pub trait Oracle {
     fn encrypt(&mut self, delta_set: &mut DeltaSet) -> ();
