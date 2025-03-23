@@ -43,7 +43,7 @@ pub fn test_dfa_attack() {
         239, 249, 53, 8, 99, 1, 135, 184, 211, 73, 78, 139, 112, 230, 136, 126,
     ];
     let t_0 = SystemTime::now();
-    let keys = dfa_attack(&normal_cipher_text, &faulty_cipher_text);
+    let keys = dfa_attack(&normal_cipher_text, &faulty_cipher_text, 5);
     for key in keys {
         println!("{}", hex::encode(key));
     }

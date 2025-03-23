@@ -29,6 +29,6 @@ and wanted to reimplement it in Rust.
 #### Performances
 
 * In Python, the attack takes 8h to complete
-* In Rust, the attack takes 2min to complete
+* In Rust, the attack takes 45s to complete (using 3 threads)
 
-So for this specific case, my Rust implementation is 240 times faster than my Python one.
+So for this specific case, my Rust implementation is 640 times faster than my Python one.
